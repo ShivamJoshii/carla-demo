@@ -14,7 +14,8 @@
     --mono:'SF Mono',Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;height:100vh;display:flex;flex-direction:column}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--text);font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;height:100vh;height:100dvh;display:flex;flex-direction:column}
   header{display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--panel)}
   .logo{width:34px;height:34px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px}
   header h1{font-size:15px;font-weight:650;letter-spacing:-.01em}
@@ -61,6 +62,35 @@
   .send:hover{background:#15694a}
   .audit{margin:0 0 0 41px;font-size:11px;color:#a3a099;font-family:var(--mono)}
   a.link{color:#1d5fbf;text-decoration:none}
+
+  /* ---------- Mobile (phone screen recordings) ---------- */
+  @media (max-width:520px){
+    header{padding:12px 14px;gap:10px}
+    header h1{font-size:14.5px}
+    header .sub{font-size:11.5px}
+    .live{font-size:0;gap:0;padding:6px 9px}
+    .live .dot{margin:0}
+    #chat{padding:18px 0}
+    .inner{padding:0 12px;gap:13px}
+    .av{width:27px;height:27px;font-size:10.5px}
+    .bubble{max-width:86%;padding:10px 13px;font-size:14.5px}
+    .msg{gap:8px}
+    .tool{margin-left:35px;font-size:10.5px;padding:7px 10px;max-width:calc(100% - 35px);overflow-x:auto;white-space:nowrap}
+    .gatebox{margin-left:0;max-width:100%;padding:12px 13px}
+    .gatebox .preview{font-size:13px;padding:10px 12px}
+    .gatebox .meta{font-size:11.5px}
+    .gbtns button{padding:9px 16px;font-size:13.5px}
+    .sentstamp{margin-left:35px;font-size:12.5px}
+    .audit{margin-left:35px;font-size:9.5px;overflow-x:auto;white-space:nowrap}
+    table{font-size:12.5px;display:block;overflow-x:auto}
+    th{font-size:10px;padding-right:9px}
+    td{padding:6px 9px 6px 0;font-size:12.5px}
+    .amt{font-size:11.5px}
+    footer{padding:10px 12px calc(12px + env(safe-area-inset-bottom))}
+    .inputrow{gap:8px}
+    .inputrow input{font-size:16px;padding:11px 14px;border-radius:11px}
+    .send{padding:0 18px;font-size:13.5px}
+  }
 </style>
 </head>
 <body>
