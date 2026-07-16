@@ -104,7 +104,7 @@
 
 <footer>
   <div class="inputrow">
-    <input id="box" placeholder="Message your office manager…" autocomplete="off">
+    <input id="box" placeholder="Message your office manager…" autocomplete="off" readonly inputmode="none" onclick="advance()">
     <button class="send" onclick="advance()">Send</button>
   </div>
 </footer>
@@ -146,7 +146,7 @@ function gate(preview,meta,onConfirm){
   });
 }
 async function autoType(text){
-  box.focus();box.value='';
+  box.value='';
   for(const ch of text){box.value+=ch;await sleep(18+Math.random()*30)}
   await sleep(250);box.value='';userMsg(text);await sleep(400);
 }
@@ -256,10 +256,7 @@ async function advance(){
   await s();
   busy = false;
 }
-box.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();advance()}});
-
-/* idle start — first Enter kicks it off */
-box.focus();
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();advance()}});
 
 /* AUTOPLAY mode (?autoplay=1): plays the whole script hands-free, then restarts */
 const AUTO = new URLSearchParams(location.search).has('autoplay');
