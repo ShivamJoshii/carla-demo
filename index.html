@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Office Manager — myBuilder</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --panel:#ffffff; --border:#e6e4df; --border2:#d8d5cf;
+    --text:#1a1a18; --muted:#6f6d66; --accent:#1a7f5a; --accent-soft:#e7f3ee;
+    --user:#1a1a18; --usertext:#ffffff;
+    --gate:#fdf6e7; --gateb:#e8cf9a; --gatetext:#8a6410;
+    --shadow:0 1px 3px rgba(20,20,15,.06),0 4px 16px rgba(20,20,15,.05);
+    --mono:'SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--panel)}
+  .logo{width:34px;height:34px;border-radius:9px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px}
+  header h1{font-size:15px;font-weight:650;letter-spacing:-.01em}
+  header .sub{font-size:12.5px;color:var(--muted)}
+  .live{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);background:var(--accent-soft);border:1px solid #cde5da;padding:5px 12px;border-radius:99px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  #chat{flex:1;overflow-y:auto;padding:28px 0;scroll-behavior:smooth}
+  .inner{max-width:740px;margin:0 auto;padding:0 20px;display:flex;flex-direction:column;gap:16px}
+  .msg{display:flex;gap:11px;animation:rise .25s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700}
+  .msg.user .av{background:#e9e7e2;color:#55534d}
+  .msg.ai .av{background:var(--accent);color:#fff}
+  .bubble{padding:11px 16px;border-radius:14px;max-width:590px}
+  .msg.user .bubble{background:var(--user);color:var(--usertext);border-radius:14px 14px 3px 14px}
+  .msg.user{flex-direction:row-reverse}
+  .msg.ai .bubble{background:var(--panel);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:14px 14px 14px 3px}
+  .tool{font-family:var(--mono);font-size:12px;color:var(--muted);background:#fbfbf9;border:1px solid var(--border);border-radius:9px;padding:8px 13px;margin:0 0 0 41px;max-width:590px;animation:rise .25s ease}
+  .tool b{color:var(--accent);font-weight:600}
+  .tool .ok{color:var(--accent)}
+  table{border-collapse:collapse;margin-top:9px;font-size:13.5px;width:100%}
+  th{color:var(--muted);font-weight:600;text-align:left;padding:4px 12px 6px 0;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  td{padding:7px 12px 7px 0;border-bottom:1px solid #f0efeb;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .amt{font-family:var(--mono);font-size:12.5px} .red{color:#c0392b;font-weight:600} .grn{color:var(--accent)}
+  .gatebox{background:var(--gate);border:1px solid var(--gateb);border-radius:14px;padding:14px 16px;margin:0 0 0 41px;max-width:590px;animation:rise .25s ease;box-shadow:var(--shadow)}
+  .gatebox .gtitle{font-size:11.5px;color:var(--gatetext);font-weight:700;letter-spacing:.07em;margin-bottom:8px;text-transform:uppercase}
+  .gatebox .preview{background:#fff;border-radius:10px;padding:11px 14px;font-size:13.5px;margin:9px 0;border:1px solid #eaddba;color:#3a3830}
+  .gatebox .meta{font-size:12.5px;color:#7a6a3a}
+  .gbtns{display:flex;gap:8px;margin-top:12px}
+  .gbtns button{padding:8px 18px;border-radius:9px;border:none;font-weight:650;font-size:13px;cursor:pointer}
+  .confirm{background:var(--accent);color:#fff}.confirm:hover{background:#15694a}
+  .cancel{background:transparent;border:1px solid var(--border2)!important;color:var(--muted)}
+  .sentstamp{margin:0 0 0 41px;font-size:13px;color:var(--accent);font-weight:600;display:flex;gap:7px;align-items:center;animation:rise .25s ease}
+  .typing{display:inline-flex;gap:4px;padding:4px 2px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:#c9c6bf;animation:blink 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{50%{opacity:.25}}
+  footer{border-top:1px solid var(--border);background:var(--panel);padding:14px 20px 18px}
+  .inputrow{max-width:740px;margin:0 auto;display:flex;gap:10px}
+  .inputrow input{flex:1;background:#fff;border:1px solid var(--border2);border-radius:12px;padding:12px 16px;color:var(--text);font-size:14.5px;outline:none;box-shadow:0 1px 2px rgba(20,20,15,.04)}
+  .inputrow input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,127,90,.12)}
+  .send{background:var(--accent);border:none;border-radius:12px;padding:0 22px;font-weight:650;color:#fff;cursor:pointer;font-size:14px}
+  .send:hover{background:#15694a}
+  .audit{margin:0 0 0 41px;font-size:11px;color:#a3a099;font-family:var(--mono)}
+  a.link{color:#1d5fbf;text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">mB</div>
+  <div><h1>AI Office Manager</h1><div class="sub">myBuilder Ltd. · Edmonton, AB</div></div>
+  <div class="live"><span class="dot"></span> Connected to your CRM</div>
+</header>
+
+<div id="chat"><div class="inner" id="feed"></div></div>
+
+<footer>
+  <div class="inputrow">
+    <input id="box" placeholder="Message your office manager…" autocomplete="off">
+    <button class="send" onclick="advance()">Send</button>
+  </div>
+</footer>
+
+<script>
+/* DIRECTOR MODE — press Enter (or Send) to auto-type & play the next beat.
+   Approve buttons must be clicked when they appear. Refresh page to restart. */
+const feed = document.getElementById('feed');
+const box = document.getElementById('box');
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const scroll = () => document.getElementById('chat').scrollTo({top:1e9,behavior:'smooth'});
+
+function el(html){const d=document.createElement('div');d.innerHTML=html;return d.firstElementChild}
+function userMsg(t){feed.appendChild(el(`<div class="msg user"><div class="av">C</div><div class="bubble">${t}</div></div>`));scroll()}
+async function aiMsg(t,delay=750){
+  const m=el(`<div class="msg ai"><div class="av">AI</div><div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div></div>`);
+  feed.appendChild(m);scroll();await sleep(delay);
+  m.querySelector('.bubble').innerHTML=t;scroll();
+}
+async function toolCall(name,args,result){
+  const t=el(`<div class="tool">→ <b>${name}</b>(${args}) <span class="typing"><i></i><i></i><i></i></span></div>`);
+  feed.appendChild(t);scroll();await sleep(650);
+  t.innerHTML=`→ <b>${name}</b>(${args}) <span class="ok">✓ ${result}</span>`;scroll();
+}
+function audit(t){feed.appendChild(el(`<div class="audit">⎿ audit log: ${t}</div>`));scroll()}
+function sent(t){feed.appendChild(el(`<div class="sentstamp">✓ ${t}</div>`));scroll()}
+function gate(preview,meta,onConfirm){
+  return new Promise(resolve=>{
+    const g=el(`<div class="gatebox"><div class="gtitle">Approve before sending — nothing goes out without you</div>
+      <div class="meta">${meta}</div><div class="preview">${preview}</div>
+      <div class="gbtns"><button class="confirm">Approve &amp; send</button><button class="cancel">Cancel</button></div></div>`);
+    feed.appendChild(g);scroll();
+    g.querySelector('.confirm').onclick=async()=>{
+      g.querySelector('.gbtns').innerHTML='<span style="color:var(--accent);font-size:13px;font-weight:650">✓ Approved</span>';
+      await onConfirm();resolve();
+    };
+    g.querySelector('.cancel').onclick=()=>{g.style.opacity=.5;g.querySelector('.gbtns').innerHTML='<span style="color:var(--muted);font-size:13px">Cancelled — nothing sent</span>';resolve()};
+  });
+}
+async function autoType(text){
+  box.focus();box.value='';
+  for(const ch of text){box.value+=ch;await sleep(18+Math.random()*30)}
+  await sleep(250);box.value='';userMsg(text);await sleep(400);
+}
+
+/* ---------------- THE SCRIPT (sequential) ---------------- */
+const script = [
+
+/* Beat 1 — what's new */
+async()=>{
+  await autoType("hey, what's new?");
+  await toolCall('daily_digest','since: yesterday 6 PM','3 items');
+  await aiMsg(`Morning, Carla. While you were out:
+  <table>
+  <tr><td>💬</td><td><b>New web inquiry</b> — garage door replacement, Summerside (came in 10:42 PM)</td></tr>
+  <tr><td>📱</td><td><b>2 customer texts</b> — Patel confirmed Friday, Nguyen asked about start dates</td></tr>
+  <tr><td>💰</td><td><b>$9,050 in unpaid invoices</b> — one is now 32 days overdue</td></tr>
+  </table>`);
+},
+
+/* Beat 2 — the inquiry */
+async()=>{
+  await autoType("what's the inquiry about?");
+  await toolCall('get_lead','source: web form, Jul 15 10:42 PM','1 lead');
+  await aiMsg(`<b>Dana Whitfield</b>, Summerside — wants a double garage door replaced, mentions the old one "barely opens." Left her cell and asked for a quote this week. Nobody's replied yet.<br><br>Want me to send her a reply and book an estimate visit? Your Thursday morning is open.`);
+},
+
+/* Beat 3 — send + book (gate) */
+async()=>{
+  await autoType("yes send it and book thursday morning");
+  await aiMsg(`Here's the reply — take a look:`,500);
+  await gate(
+    `Hi Dana — thanks for reaching out to myBuilder Ltd.! We can definitely help with the garage door. I have Thursday at 9:30 AM open for a free on-site estimate — does that work? Reply YES and you're booked. — myBuilder Ltd.`,
+    'To: Dana Whitfield · SMS to (780) 555-0177 · + calendar hold Thu 9:30 AM',
+    async()=>{
+      await toolCall('send_sms + book_estimate','lead: D. Whitfield, Thu 9:30 AM','delivered · calendar hold created');
+      audit('{actor: agent, action: send_sms+book_estimate, lead: whitfield, approved_by: carla}');
+      sent('Sent, and Thursday 9:30 is held. If she confirms, it locks in and you\'ll get a reminder Wednesday night.');
+    });
+},
+
+/* Beat 4 — who owes money */
+async()=>{
+  await autoType("ok who owes me money?");
+  await toolCall('list_overdue_invoices','min_days: 0','3 invoices, $9,050 outstanding');
+  await aiMsg(`Three invoices out there:
+  <table><tr><th>Customer</th><th>Invoice</th><th>Amount</th><th>Overdue</th></tr>
+  <tr><td>Henderson Renovations</td><td class="amt">INV-0147</td><td class="amt">$4,200</td><td class="red">32 days</td></tr>
+  <tr><td>Patel — basement suite</td><td class="amt">INV-0152</td><td class="amt">$3,100</td><td class="red">18 days</td></tr>
+  <tr><td>Corner Café buildout</td><td class="amt">INV-0155</td><td class="amt">$1,750</td><td class="red">6 days</td></tr></table>
+  Patel's cheque is supposedly coming Friday — I'm already watching that one. <b>Henderson at 32 days is the problem.</b> He's ignored one reminder. Want me to send a firmer one with the payment link?`);
+},
+
+/* Beat 5 — chase henderson (gate) */
+async()=>{
+  await autoType("yeah go after henderson");
+  await toolCall('get_customer_timeline','customer: Henderson Renovations','paid on time 4× before · 1 reminder Jun 28');
+  await aiMsg(`He's paid on time 4 times before, so this stays firm but friendly:`,600);
+  await gate(
+    `Hi Mike — following up on invoice INV-0147 ($4,200), now 32 days past due. I know things get busy — here's the secure link to settle it today: <a class="link">pay.mybuilder.ca/inv-0147</a>. If something's holding this up, just reply here and we'll sort it out. — myBuilder Ltd.`,
+    'To: Mike Henderson · SMS to (780) 555-0142 · Invoice INV-0147 · $4,200',
+    async()=>{
+      await toolCall('send_payment_reminder','invoice: INV-0147, channel: sms','delivered');
+      audit('{actor: agent, action: send_payment_reminder, invoice: INV-0147, approved_by: carla}');
+      sent('Sent. If nothing lands in 7 days, I\'ll draft the next escalation for you.');
+    });
+},
+
+/* Beat 6 — quote (gate) */
+async()=>{
+  await autoType("quote sarah kowalski's fence — 40ft cedar at $58/ft plus haul-away");
+  await toolCall('search_customers','"sarah kowalski"','1 match · Mill Woods · inquired Jul 12');
+  await toolCall('create_quote','customer: S. Kowalski, 2 lines','QUO-0089 drafted');
+  await aiMsg(`Done — <b>QUO-0089</b>:
+  <table><tr><th>Item</th><th>Qty</th><th>Amount</th></tr>
+  <tr><td>Cedar fence replacement, supply + install</td><td class="amt">40 ft × $58</td><td class="amt">$2,320.00</td></tr>
+  <tr><td>Old fence removal &amp; haul-away</td><td class="amt">1</td><td class="amt">$200.00</td></tr>
+  <tr><td><b>Total + GST</b></td><td></td><td class="amt"><b>$2,646.00</b></td></tr></table>`);
+  await gate(
+    `Hi Sarah — thanks for having us out. Your quote for the 40ft cedar fence replacement is ready: $2,646 all-in, valid 30 days. View & accept here: <a class="link">mybuilder.ca/q/0089</a>. We could start as early as next Tuesday. — myBuilder Ltd.`,
+    'To: Sarah Kowalski · SMS to (587) 555-0198 · Quote QUO-0089 · $2,646.00',
+    async()=>{
+      await toolCall('send_quote','quote: QUO-0089, channel: sms','delivered');
+      audit('{actor: agent, action: send_quote, quote: QUO-0089, approved_by: carla}');
+      sent('Quote sent. If she hasn\'t opened it in 3 days, I\'ll nudge her — most lost jobs die from no follow-up, not "no."');
+    });
+},
+
+/* Beat 7 — close */
+async()=>{
+  await autoType("anything else i should know?");
+  await toolCall('daily_digest','date: today','2 items');
+  await aiMsg(`Just two things:
+  <table>
+  <tr><td>🔨</td><td><b>Ritchie deck repair today</b> — crew booked for 10 AM, materials confirmed</td></tr>
+  <tr><td>📝</td><td><b>Nguyen's $5,400 quote</b> — opened twice, no reply in 4 days. I'd call him today; want me to set a reminder for 1 PM?</td></tr>
+  </table>
+  Otherwise you're clear. I'll keep watching the inbox, the invoices, and Thursday's estimate. Go build something.`);
+}
+];
+
+/* ---------------- director wiring ---------------- */
+let step = 0, busy = false;
+async function advance(){
+  if(busy || step >= script.length) return;
+  busy = true;
+  const s = script[step++];
+  await s();
+  busy = false;
+}
+box.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();advance()}});
+
+/* idle start — first Enter kicks it off */
+box.focus();
+</script>
+</body>
+</html>
