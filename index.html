@@ -112,6 +112,7 @@ function gate(preview,meta,onConfirm){
       await onConfirm();resolve();
     };
     g.querySelector('.cancel').onclick=()=>{g.style.opacity=.5;g.querySelector('.gbtns').innerHTML='<span style="color:var(--muted);font-size:13px">Cancelled — nothing sent</span>';resolve()};
+    if(AUTO){setTimeout(()=>g.querySelector('.confirm')&&g.querySelector('.confirm').click(),1800)}
   });
 }
 async function autoType(text){
@@ -229,6 +230,14 @@ box.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();advanc
 
 /* idle start — first Enter kicks it off */
 box.focus();
+
+/* AUTOPLAY mode (?autoplay=1): plays the whole script hands-free, then restarts */
+const AUTO = new URLSearchParams(location.search).has('autoplay');
+if(AUTO){(async()=>{
+  await sleep(1200);
+  for(let i=0;i<script.length;i++){await advance();await sleep(2200)}
+  await sleep(6000);location.reload();
+})()}
 </script>
 </body>
 </html>
